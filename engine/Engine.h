@@ -6,6 +6,7 @@
 class Platform;
 
 #include "EventBus.h"
+#include "IECS.h"
 
 //------------------------------------------------------------------------------
 // Engine
@@ -33,8 +34,12 @@ public:
     // Access the global event bus for decoupled communication.
     EventBus& GetEventBus();
 
+    // Access the entity-component-system instance.
+    IECS& GetECS();
+
 private:
     std::unique_ptr<Platform> platform_;
     bool running_ = false;
     EventBus event_bus_;
+    std::unique_ptr<IECS> ecs_;
 };

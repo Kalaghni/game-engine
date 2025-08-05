@@ -1,10 +1,11 @@
 #include "Engine.h"
 #include "Platform.h" // Interface; implementation provided by platform module.
+#include "SimpleECS.h"
 
 #include <iostream>
 
 Engine::Engine(std::unique_ptr<Platform> platform)
-    : platform_(std::move(platform)) {}
+    : platform_(std::move(platform)), ecs_(std::make_unique<SimpleECS>()) {}
 
 Engine::~Engine() = default;
 
@@ -22,7 +23,7 @@ void Engine::Run() {
     // rendering, and subsystem coordination.
     while (running_) {
         platform_->PollEvents();
-        // Placeholder for game and engine updates.
+        ecs_->Update(0.016); // Fixed timestep placeholder.
         running_ = false; // Run one iteration for demonstration purposes.
     }
 }
@@ -36,4 +37,8 @@ void Engine::Shutdown() {
 
 EventBus& Engine::GetEventBus() {
     return event_bus_;
+}
+
+IECS& Engine::GetECS() {
+    return *ecs_;
 }

@@ -1,5 +1,6 @@
 add_executable(titan_tests
     EngineTests.cpp
+    ECSTests.cpp
     ${PROJECT_SOURCE_DIR}/third_party/catch_amalgamated.cpp
 )
 
