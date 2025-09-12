@@ -1,6 +1,7 @@
 add_library(engine
     Engine.cpp
     EventBus.cpp
+    SimulationMachine.cpp
 )
 
 target_include_directories(engine
