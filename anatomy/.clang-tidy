@@ -1,0 +1,10 @@
+Checks: >-
+  bugprone-*,performance-*,readability-*,portability-*,
+  modernize-*,cppcoreguidelines-*,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-owning-memory
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*anatomy/.*'
+AnalyzeTemporaryDtors: false
+FormatStyle: none

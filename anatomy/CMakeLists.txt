@@ -1,0 +1,73 @@
+cmake_minimum_required(VERSION 3.26)
+project(anatomy LANGUAGES CXX VERSION 0.1.0)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+option(ANATOMY_WITH_JSON "Enable JSON adapters (nlohmann::json)" ON)
+option(ANATOMY_WITH_YAML "Enable YAML adapters (yaml-cpp)" OFF)
+option(ANATOMY_WARN_AS_ERROR "Treat warnings as errors" ON)
+
+if(MSVC)
+  add_compile_options(/W4)
+  if(ANATOMY_WARN_AS_ERROR)
+    add_compile_options(/WX)
+  endif()
+else()
+  add_compile_options(-Wall -Wextra -Wpedantic)
+  if(ANATOMY_WARN_AS_ERROR)
+    add_compile_options(-Werror)
+  endif()
+endif()
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
+FetchContent_MakeAvailable(googletest)
+
+if(ANATOMY_WITH_JSON)
+  FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+  FetchContent_MakeAvailable(json)
+endif()
+if(ANATOMY_WITH_YAML)
+  FetchContent_Declare(yamlcpp URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.8.0.tar.gz)
+  FetchContent_MakeAvailable(yamlcpp)
+endif()
+
+file(GLOB_RECURSE ANATOMY_PUBLIC_HEADERS CONFIGURE_DEPENDS include/anatomy/**/*.hpp)
+file(GLOB_RECURSE ANATOMY_SOURCES CONFIGURE_DEPENDS src/**/*.cpp)
+if(ANATOMY_SOURCES)
+  add_library(anatomy STATIC ${ANATOMY_PUBLIC_HEADERS} ${ANATOMY_SOURCES})
+else()
+  add_library(anatomy STATIC ${ANATOMY_PUBLIC_HEADERS} src/core/dummy.cpp)
+endif()
+
+target_include_directories(anatomy PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+if(ANATOMY_WITH_JSON)
+  target_compile_definitions(anatomy PUBLIC ANATOMY_WITH_JSON=1)
+  target_link_libraries(anatomy PUBLIC nlohmann_json::nlohmann_json)
+endif()
+if(ANATOMY_WITH_YAML)
+  target_compile_definitions(anatomy PUBLIC ANATOMY_WITH_YAML=1)
+  target_link_libraries(anatomy PUBLIC yaml-cpp)
+endif()
+
+find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+if(CLANG_TIDY_EXE)
+  set_target_properties(anatomy PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+endif()
+
+enable_testing()
+add_subdirectory(tests)
+
+find_package(Doxygen QUIET)
+if(DOXYGEN_FOUND)
+  set(DOXYGEN_GENERATE_HTML YES)
+  set(DOXYGEN_EXTRACT_PRIVATE NO)
+  set(DOXYGEN_PROJECT_NAME "anatomy")
+  set(DOXYGEN_RECURSIVE YES)
+  doxygen_add_docs(anatomy_docs ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()

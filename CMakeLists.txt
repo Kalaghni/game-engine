@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(engine)
 add_subdirectory(platform)
 add_subdirectory(game)
+add_subdirectory(anatomy)
 
 enable_testing()
 add_subdirectory(tests)
